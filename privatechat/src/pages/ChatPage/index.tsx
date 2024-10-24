@@ -342,7 +342,7 @@ const ChatContainer = styled.div`
 
 const Header = styled.div`
   padding: 15px 10px;
-  background-color: #1b202d;
+  background-color: #1c1f2d;
   position: fixed;
   display: flex;
   justify-content: space-between;

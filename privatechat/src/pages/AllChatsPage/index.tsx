@@ -198,7 +198,7 @@ const ChatsList = styled.div`
   border-top-right-radius: 25px;
   margin-top: 100px;
   padding-top: 20px;
-  background-color: #262b3a;
+  background-color: #212433;
 
   @media (min-width: 1000px) {
     margin-top: 70px;
