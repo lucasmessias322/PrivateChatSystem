@@ -40,32 +40,13 @@ export default function ChatPage() {
 
   const [SelectedFile, setSelectedFile] = useState<any>();
 
-  const [isDesktop, setIsDesktop] = useState<boolean>(false);
-
   useEffect(() => {
-    // Função para verificar o tamanho da tela
-    const checkScreenSize = () => {
-      setIsDesktop(window.innerWidth >= 1000);
-    };
-
-    checkScreenSize();
-
-    // Adiciona um listener para o redimensionamento da tela
-    window.addEventListener("resize", checkScreenSize);
-
-    // Remove o listener quando o componente for desmontado
-    return () => {
-      window.removeEventListener("resize", checkScreenSize);
-    };
-  }, []);
-
-  // useEffect(() => {
-  //   if (contactID) {
-  //     const combinedId =
-  //       userId < contactID ? userId + contactID : contactID + userId;
-  //     socket.emit("joinChat", combinedId);
-  //   }
-  // }, [socket]);
+    if (contactID) {
+      const combinedId =
+        userId < contactID ? userId + contactID : contactID + userId;
+      socket.emit("joinChat", combinedId);
+    }
+  }, [socket]);
 
   useEffect(() => {
     socket.on("chatmessage_out", (res: any) => {
@@ -75,7 +56,7 @@ export default function ChatPage() {
         setMessages(res.messages);
       }
     });
-  }, []);
+  }, [socket]);
 
   useEffect(() => {
     if (contactID && token) {
@@ -89,7 +70,7 @@ export default function ChatPage() {
         setChat(res);
       });
     }
-  }, [contactID, token]);
+  }, [contactID, token, socket]);
 
   useEffect(() => {
     scrollToBottom(); // Scroll para o final sempre que as mensagens forem atualizadas
@@ -156,7 +137,7 @@ export default function ChatPage() {
         socket.off("mensagemDeletada");
       };
     }
-  }, [contactID, userId]);
+  }, [contactID, userId, socket]);
 
   const handleClick = (messageId: string) => {
     toggleSelectMessage(messageId);
@@ -169,6 +150,15 @@ export default function ChatPage() {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+
+    // Verifica se o tamanho do arquivo é maior que 5 MB (5 * 1024 * 1024 bytes)
+    const maxSizeInBytes = 5 * 1024 * 1024;
+    if (file.size > maxSizeInBytes) {
+      alert(
+        "O arquivo selecionado é muito grande. O tamanho máximo permitido é 5 MB."
+      );
+      return;
+    }
 
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -188,17 +178,23 @@ export default function ChatPage() {
 
     const currentQuestion = question;
     const currentFile = SelectedFile; // Verificar se há um arquivo selecionado
-    setQuestion("");
-    setSelectedFile(null); // Limpa o estado após o envio
 
-    // Criação de uma nova mensagem, incluindo a imagem se houver
+    // Define o tempo de expiração baseado na presença de uma imagem
+    let expireTime;
+    if (SelectedFile) {
+      // Se a mensagem tem uma imagem, define para 5 minutos
+      expireTime = new Date(Date.now() + 5 * 60 * 1000); // 5 minutos
+    } else {
+      // Se não tem imagem, define para 1 hora
+      expireTime = new Date(Date.now() + 60 * 60 * 1000); // 1 hora
+    }
     const newMessage = {
       userId: userId,
       msg: currentQuestion,
-      image: currentFile && currentFile,
+      image: SelectedFile,
       sendTime: String(Date.now()),
+      expireAt: expireTime, // Adiciona a data de expiração
     };
-
     // Atualiza o estado local de mensagens
     setMessages((prevMessages) => [...prevMessages, newMessage]);
 
@@ -215,6 +211,8 @@ export default function ChatPage() {
 
       socket.emit("chatmessage", data);
 
+      setQuestion("");
+      setSelectedFile(null); // Limpa o estado após o envio
       setLoading(false);
     }
   }
@@ -287,6 +285,7 @@ export default function ChatPage() {
             type="file"
             ref={fileInputRef}
             style={{ display: "none" }}
+            accept="image/png, image/jpeg, image/gif"
             onChange={handleFileChange}
           />
 
@@ -317,7 +316,6 @@ export default function ChatPage() {
     </Container>
   );
 }
-
 const Container = styled.div`
   width: 100%;
   height: 100vh;
@@ -336,7 +334,7 @@ const ChatContainer = styled.div`
   background-image: url("/");
 
   @media (min-width: 1000px) {
-    padding: 0px 400px;
+    padding: 0px 250px;
   }
 `;
 
@@ -414,7 +412,7 @@ const ChatInputBar = styled.div`
     max-width: 500px;
     margin: auto;
     border-radius: 100px;
-    background-color: #3d4354;
+    background-color: #212433;
     display: flex;
     justify-content: center;
     align-items: center;

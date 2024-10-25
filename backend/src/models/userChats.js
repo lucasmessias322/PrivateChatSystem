@@ -15,7 +15,23 @@ const userChats = new mongoose.Schema({
     type: String,
     require: true,
   },
-  messages: [],
+  messages: [
+    {
+      _id: {
+        type: mongoose.Schema.Types.ObjectId,
+        default: () => new mongoose.Types.ObjectId(),
+      }, // ID único gerado automaticamente
+      userId: { type: String, require: true },
+      msg: { type: String, require: true },
+      image: { type: String, require: false },
+      sendTime: { type: String, require: true },
+      expireAt: {
+        type: Date,
+        required: true,
+        expireAt: { type: Date, expires: '5m', default: Date.now }, 
+      },
+    },
+  ],
   lastMessage: {
     type: String,
     require: false,

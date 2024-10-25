@@ -31,8 +31,9 @@ const io = new Server(server, {
     origin: ["*", "http://localhost:5173"],
     credentials: true,
   },
-  pingTimeout: 60000, // 60 segundos
-  pingInterval: 25000, // 25 segundos
+  // pingTimeout: 60000, // 60 segundos
+  // pingInterval: 25000, // 25 segundos
+  maxHttpBufferSize: 1e9, // 1 GB
 });
 
 io.on("connection", (socket) => {
