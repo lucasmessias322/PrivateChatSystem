@@ -28,7 +28,7 @@ const userChats = new mongoose.Schema({
       expireAt: {
         type: Date,
         required: true,
-        expireAt: { type: Date, expires: '5m', default: Date.now }, 
+        expireAt: { type: Date, expires: "5m", default: Date.now },
       },
     },
   ],
