@@ -54,7 +54,7 @@ router.post("/login", async (req, res) => {
 });
 
 router.post("/register", async (req, res) => {
-  const { name,username, password, confirmpassword } = req.body;
+  const { name, username, password, confirmpassword } = req.body;
   const secret = process.env.SECRET;
 
   // validations
@@ -109,6 +109,5 @@ router.post("/register", async (req, res) => {
     res.status(500).json({ msg: error });
   }
 });
-
 
 export default router;
