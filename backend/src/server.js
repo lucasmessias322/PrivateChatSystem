@@ -1,4 +1,3 @@
-
 import os from "os";
 import dotenv from "dotenv";
 import app from "./app.js";
@@ -44,8 +43,8 @@ const PORT = process.env.PORT || 8081;
 const HOST = getNetworkIP();
 
 connectDB();
-const server = app.listen(PORT, HOST, () => {
-  console.log(`Servidor iniciado em ${HOST}:${PORT}`);
+const server = app.listen(PORT, () => {
+  console.log(`Servidor iniciado em ${PORT}`);
 });
 
 const io = new Server(server, {
